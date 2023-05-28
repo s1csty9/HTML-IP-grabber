@@ -1,0 +1,26 @@
+<script>
+let userIP;
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(data => {
+      userIP = data.ip;
+      sendDataToWebhook(userIP);
+    });
+});
+
+function sendDataToWebhook(ip) {
+  const data = {
+    userIP: ip
+  };
+
+  fetch('https://example.com/webhook', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+}
+</script>
